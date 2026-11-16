@@ -43,6 +43,7 @@
     'use strict';
     const params = new URLSearchParams(window.location.search);
     const returnOrigin = params.get('returnOrigin') || '';
+    const returnUrl = params.get('returnUrl') || '';
     const nonce = params.get('nonce') || '';
     const statusNode = document.getElementById('status');
     const restartButton = document.getElementById('restartButton');
@@ -66,6 +67,16 @@
       }
     }
 
+    function isAllowedReturnUrl(value) {
+      try {
+        const url = new URL(value);
+        return url.protocol === 'https:' && url.hostname === 'script.google.com' &&
+          url.pathname.indexOf('/macros/s/') === 0 && url.pathname.endsWith('/exec');
+      } catch (error) {
+        return false;
+      }
+    }
+
     async function stopCamera() {
       if (scanner && isScanning) {
         try { await scanner.stop(); } catch (error) { /* กล้องอาจหยุดแล้ว */ }
@@ -75,7 +86,7 @@
 
     async function startCamera() {
       if (isStarting || isScanning || hasScanned) return;
-      if (!isAllowedReturnOrigin(returnOrigin) || !nonce) {
+      if (!isAllowedReturnOrigin(returnOrigin) || !isAllowedReturnUrl(returnUrl) || !nonce) {
         setStatus('ลิงก์เปิด Scanner ไม่ถูกต้อง กรุณากลับไปเริ่มจากหน้าเว็บระบบครุภัณฑ์');
         restartButton.disabled = true;
         return;
@@ -117,16 +128,26 @@
             await stopCamera();
 
             if (window.opener && !window.opener.closed) {
-              window.opener.postMessage({
-                type: 'ASSET_QR_SCANNED',
-                payload: decodedText,
-                nonce: nonce
-              }, returnOrigin);
-              setStatus('ส่งรหัสกลับแล้ว กำลังเปิดรายการครุภัณฑ์...');
-              setTimeout(function () { window.close(); }, 350);
-            } else {
-              setStatus('ไม่พบหน้าระบบหลัก กรุณาปิดหน้านี้และเริ่มสแกนจากระบบอีกครั้ง');
+              try {
+                window.opener.postMessage({
+                  type: 'ASSET_QR_SCANNED',
+                  payload: decodedText,
+                  nonce: nonce
+                }, returnOrigin);
+                setStatus('ส่งรหัสกลับแล้ว กำลังเปิดรายการครุภัณฑ์...');
+                setTimeout(function () { window.close(); }, 500);
+                return;
+              } catch (postError) {
+                // ใช้การกลับไปยัง Web App เป็นทางสำรองด้านล่าง
+              }
             }
+
+            // บางเบราว์เซอร์แยกหน้าต่างข้ามโดเมนจน window.opener ใช้งานไม่ได้
+            // จึงเปิด Web App ด้วย URL ที่ปลอดภัยและแนบรหัส QR ให้ระบบรับหลังเข้าสู่ระบบ
+            const destination = new URL(returnUrl);
+            destination.searchParams.set('qr', decodedText);
+            setStatus('กำลังกลับไปยังระบบครุภัณฑ์...');
+            window.location.replace(destination.toString());
           },
           function () { /* ไม่พบ QR ในเฟรมนี้ ให้กล้องทำงานต่อ */ }
         );
@@ -151,7 +172,8 @@
     }
 
     restartButton.addEventListener('click', async function () {
-      if (hasScanned) return;
+      if (isStarting) return;
+      hasScanned = false;
       await stopCamera();
       await startCamera();
     });

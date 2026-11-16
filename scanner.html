@@ -15,7 +15,8 @@
     #reader { width: 100%; min-height: 260px; overflow: hidden; border-radius: 13px; background: #0f172a; }
     #reader video { width: 100% !important; height: auto !important; object-fit: cover; border-radius: 13px; }
     #reader__scan_region { min-height: 240px; }
-    #reader__dashboard_section_csr button { min-height: 40px; border: 0; border-radius: 8px; padding: 8px 12px; background: #2563eb; color: #fff; }
+    /* ซ่อนแถบควบคุมเริ่มต้นของไลบรารี เหลือเฉพาะภาพกล้องและปุ่มของหน้าเรา */
+    #reader__dashboard, #reader__dashboard_section, #reader__dashboard_section_csr { display: none !important; }
     .status { margin: 13px 0; padding: 11px 12px; border-radius: 9px; background: #eff6ff; color: #1d4ed8; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
     .actions { display: flex; gap: 9px; }
     button { min-height: 44px; border: 0; border-radius: 9px; padding: 10px 14px; font-size: 14px; font-weight: 700; cursor: pointer; }

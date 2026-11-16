@@ -128,27 +128,26 @@
             await stopCamera();
 
             if (window.opener && !window.opener.closed) {
-              try {
-                window.opener.postMessage({
-                  type: 'ASSET_QR_SCANNED',
-                  payload: decodedText,
-                  nonce: nonce
-                }, returnOrigin);
-                setStatus('ส่งรหัสกลับแล้ว กำลังเปิดรายการครุภัณฑ์...');
-                setTimeout(function () { window.close(); }, 500);
-                return;
-              } catch (postError) {
-                // ใช้การกลับไปยัง Web App เป็นทางสำรองด้านล่าง
-              }
-            }
+  window.opener.postMessage({
+    type: 'ASSET_QR_SCANNED',
+    payload: decodedText,
+    nonce: nonce
+  }, returnOrigin);
 
-            // บางเบราว์เซอร์แยกหน้าต่างข้ามโดเมนจน window.opener ใช้งานไม่ได้
-            // จึงเปิด Web App ด้วย URL ที่ปลอดภัยและแนบรหัส QR ให้ระบบรับหลังเข้าสู่ระบบ
-            const destination = new URL(returnUrl);
-            destination.searchParams.set('qr', decodedText);
-            setStatus('กำลังกลับไปยังระบบครุภัณฑ์...');
-            window.location.replace(destination.toString());
-          },
+  setStatus('ส่งรหัสกลับแล้ว กำลังเปิดรายการครุภัณฑ์...');
+  setTimeout(function () {
+    window.close();
+  }, 500);
+
+  return;
+}
+
+// ห้ามเปลี่ยนหน้าไปยัง Web App เพราะจะทำให้ระบบเริ่มต้นใหม่
+setStatus(
+  'ไม่สามารถส่งข้อมูลกลับหน้าระบบได้ กรุณาปิด Scanner แล้วเปิดสแกนใหม่จากหน้าระบบครุภัณฑ์'
+);
+hasScanned = false;
+restartButton.disabled = false;
           function () { /* ไม่พบ QR ในเฟรมนี้ ให้กล้องทำงานต่อ */ }
         );
 

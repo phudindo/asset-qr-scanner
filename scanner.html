@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -5,190 +6,452 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#172554">
   <title>สแกน QR Code ครุภัณฑ์</title>
+
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; padding: 16px; display: flex; justify-content: center; align-items: center; background: #eef2f7; color: #1e293b; font-family: Arial, Tahoma, sans-serif; }
-    .scanner-card { width: min(100%, 520px); padding: 18px; border-radius: 18px; background: #fff; box-shadow: 0 12px 35px rgba(15,23,42,.12); }
-    h1 { margin: 0 0 7px; font-size: 21px; }
-    .help { margin: 0 0 14px; color: #64748b; font-size: 14px; line-height: 1.55; }
-    #reader { width: 100%; min-height: 260px; overflow: hidden; border-radius: 13px; background: #0f172a; }
-    #reader video { width: 100% !important; height: auto !important; object-fit: cover; border-radius: 13px; }
-    #reader__scan_region { min-height: 240px; }
-    #reader__dashboard_section_csr button { min-height: 40px; border: 0; border-radius: 8px; padding: 8px 12px; background: #2563eb; color: #fff; }
-    .status { margin: 13px 0; padding: 11px 12px; border-radius: 9px; background: #eff6ff; color: #1d4ed8; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
-    .actions { display: flex; gap: 9px; }
-    button { min-height: 44px; border: 0; border-radius: 9px; padding: 10px 14px; font-size: 14px; font-weight: 700; cursor: pointer; }
-    #restartButton { flex: 1; background: #2563eb; color: #fff; }
-    #closeButton { background: #e2e8f0; color: #334155; }
-    .footnote { margin: 12px 0 0; color: #64748b; font-size: 11px; line-height: 1.5; }
-    @media (max-width: 420px) { body { padding: 9px; align-items: flex-start; } .scanner-card { padding: 13px; } h1 { font-size: 18px; } #reader { min-height: 230px; } }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #eef2f7;
+      color: #1e293b;
+      font-family: Arial, Tahoma, sans-serif;
+    }
+
+    .scanner-card {
+      width: min(100%, 520px);
+      padding: 18px;
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 12px 35px rgba(15, 23, 42, .12);
+    }
+
+    h1 {
+      margin: 0 0 7px;
+      font-size: 21px;
+    }
+
+    .help {
+      margin: 0 0 14px;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    #reader {
+      width: 100%;
+      min-height: 260px;
+      overflow: hidden;
+      border-radius: 13px;
+      background: #0f172a;
+    }
+
+    #reader video {
+      width: 100% !important;
+      height: auto !important;
+      object-fit: cover;
+      border-radius: 13px;
+    }
+
+    #reader__scan_region {
+      min-height: 240px;
+    }
+
+    #reader__dashboard_section_csr button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .status {
+      margin: 13px 0;
+      padding: 11px 12px;
+      border-radius: 9px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+    }
+
+    button {
+      min-height: 44px;
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #restartButton {
+      flex: 1;
+      background: #2563eb;
+      color: #fff;
+    }
+
+    #closeButton {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .footnote {
+      margin: 12px 0 0;
+      color: #64748b;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 9px;
+        align-items: flex-start;
+      }
+
+      .scanner-card {
+        padding: 13px;
+      }
+
+      h1 {
+        font-size: 18px;
+      }
+
+      #reader {
+        min-height: 230px;
+      }
+    }
   </style>
 </head>
+
 <body>
+
   <main class="scanner-card">
+
     <h1>สแกน QR Code ครุภัณฑ์</h1>
-    <p class="help">วาง QR Code ให้อยู่ในกรอบกล้อง ระบบจะอ่านให้อัตโนมัติ</p>
+
+    <p class="help">
+      วาง QR Code ให้อยู่ในกรอบกล้อง ระบบจะอ่านให้อัตโนมัติ
+    </p>
+
     <div id="reader"></div>
-    <div id="status" class="status" role="status" aria-live="polite">กำลังเตรียมกล้อง...</div>
-    <div class="actions">
-      <button id="restartButton" type="button">เปิดกล้องอีกครั้ง</button>
-      <button id="closeButton" type="button">ปิด</button>
+
+    <div id="status" class="status" role="status" aria-live="polite">
+      กำลังเตรียมกล้อง...
     </div>
-    <p class="footnote">เมื่ออ่าน QR สำเร็จ ระบบจะส่งข้อมูลกลับไปยังหน้าจัดการครุภัณฑ์และเปิดรายการแก้ไขให้อัตโนมัติ</p>
+
+    <div class="actions">
+      <button id="restartButton" type="button">
+        เปิดกล้องอีกครั้ง
+      </button>
+
+      <button id="closeButton" type="button">
+        ปิด
+      </button>
+    </div>
+
+    <p class="footnote">
+      เมื่ออ่าน QR สำเร็จ ระบบจะส่งข้อมูลกลับไปยังหน้าจัดการครุภัณฑ์และเปิดรายการแก้ไขให้อัตโนมัติ
+    </p>
+
   </main>
 
   <script>
-  (function () {
-    'use strict';
-    const params = new URLSearchParams(window.location.search);
-    const returnOrigin = params.get('returnOrigin') || '';
-    const returnUrl = params.get('returnUrl') || '';
-    const nonce = params.get('nonce') || '';
-    const statusNode = document.getElementById('status');
-    const restartButton = document.getElementById('restartButton');
-    const closeButton = document.getElementById('closeButton');
-    let scanner = null;
-    let isStarting = false;
-    let isScanning = false;
-    let hasScanned = false;
+    (function () {
+      'use strict';
 
-    function setStatus(message) { statusNode.textContent = message; }
+      const params = new URLSearchParams(window.location.search);
 
-    function isAllowedReturnOrigin(value) {
-      try {
-        const url = new URL(value);
-        return url.protocol === 'https:' &&
-          (url.hostname === 'script.google.com' ||
-           url.hostname.endsWith('-script.googleusercontent.com') ||
-           url.hostname.endsWith('.googleusercontent.com'));
-      } catch (error) {
-        return false;
+      const returnOrigin = params.get('returnOrigin') || '';
+      const returnUrl = params.get('returnUrl') || '';
+      const nonce = params.get('nonce') || '';
+
+      const statusNode = document.getElementById('status');
+      const restartButton = document.getElementById('restartButton');
+      const closeButton = document.getElementById('closeButton');
+
+      let scanner = null;
+      let isStarting = false;
+      let isScanning = false;
+      let hasScanned = false;
+
+      function setStatus(message) {
+        statusNode.textContent = message;
       }
-    }
 
-    function isAllowedReturnUrl(value) {
-      try {
-        const url = new URL(value);
-        return url.protocol === 'https:' && url.hostname === 'script.google.com' &&
-          url.pathname.indexOf('/macros/s/') === 0 && url.pathname.endsWith('/exec');
-      } catch (error) {
-        return false;
+      // ตรวจสอบ Origin ที่อนุญาต
+      function isAllowedReturnOrigin(value) {
+        try {
+          const url = new URL(value);
+
+          return url.protocol === 'https:' &&
+            (
+              url.hostname === 'script.google.com' ||
+              url.hostname.endsWith('-script.googleusercontent.com') ||
+              url.hostname.endsWith('.googleusercontent.com')
+            );
+
+        } catch (error) {
+          return false;
+        }
       }
-    }
 
-    async function stopCamera() {
-      if (scanner && isScanning) {
-        try { await scanner.stop(); } catch (error) { /* กล้องอาจหยุดแล้ว */ }
+      // ตรวจสอบ URL ของ Web App
+      function isAllowedReturnUrl(value) {
+        try {
+          const url = new URL(value);
+
+          return url.protocol === 'https:' &&
+            url.hostname === 'script.google.com' &&
+            url.pathname.indexOf('/macros/s/') === 0 &&
+            url.pathname.endsWith('/exec');
+
+        } catch (error) {
+          return false;
+        }
       }
-      isScanning = false;
-    }
 
-    async function startCamera() {
-      if (isStarting || isScanning || hasScanned) return;
-      if (!isAllowedReturnOrigin(returnOrigin) || !isAllowedReturnUrl(returnUrl) || !nonce) {
-        setStatus('ลิงก์เปิด Scanner ไม่ถูกต้อง กรุณากลับไปเริ่มจากหน้าเว็บระบบครุภัณฑ์');
+      // หยุดกล้อง
+      async function stopCamera() {
+        if (scanner && isScanning) {
+          try {
+            await scanner.stop();
+          } catch (error) {
+            // กล้องอาจหยุดไปแล้ว
+          }
+        }
+
+        isScanning = false;
+      }
+
+      // เริ่มเปิดกล้อง
+      async function startCamera() {
+
+        if (isStarting || isScanning || hasScanned) {
+          return;
+        }
+
+        // ตรวจสอบข้อมูลที่ได้รับจากหน้าหลัก
+        if (
+          !isAllowedReturnOrigin(returnOrigin) ||
+          !isAllowedReturnUrl(returnUrl) ||
+          !nonce
+        ) {
+          setStatus(
+            'ลิงก์เปิด Scanner ไม่ถูกต้อง กรุณากลับไปเริ่มจากหน้าเว็บระบบครุภัณฑ์'
+          );
+
+          restartButton.disabled = true;
+          return;
+        }
+
+        // ตรวจสอบ Library อ่าน QR
+        if (typeof Html5Qrcode === 'undefined') {
+          setStatus(
+            'โหลดระบบอ่าน QR ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ต'
+          );
+          return;
+        }
+
+        isStarting = true;
         restartButton.disabled = true;
-        return;
-      }
-      if (typeof Html5Qrcode === 'undefined') {
-        setStatus('โหลดระบบอ่าน QR ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ต');
-        return;
+
+        setStatus('กำลังขออนุญาตและเปิดกล้อง...');
+
+        try {
+
+          if (!scanner) {
+            scanner = new Html5Qrcode('reader', {
+              formatsToSupport: [
+                Html5QrcodeSupportedFormats.QR_CODE
+              ],
+              verbose: false
+            });
+          }
+
+          const config = {
+            fps: 12,
+
+            qrbox: function (viewfinderWidth, viewfinderHeight) {
+              const edge = Math.floor(
+                Math.min(viewfinderWidth, viewfinderHeight) * 0.72
+              );
+
+              return {
+                width: Math.min(edge, 300),
+                height: Math.min(edge, 300)
+              };
+            },
+
+            aspectRatio: 1.0,
+            disableFlip: false
+          };
+
+          // เริ่มสแกน QR Code
+          await scanner.start(
+
+            { facingMode: 'environment' },
+
+            config,
+
+            // ทำงานเมื่ออ่าน QR สำเร็จ
+            async function (decodedText) {
+
+              if (hasScanned) {
+                return;
+              }
+
+              hasScanned = true;
+
+              setStatus(
+                'อ่าน QR สำเร็จ กำลังส่งรหัสกลับไปยังระบบ...'
+              );
+
+              await stopCamera();
+
+              // ส่งข้อมูลกลับไปยังหน้าหลัก
+              if (window.opener && !window.opener.closed) {
+
+                window.opener.postMessage(
+                  {
+                    type: 'ASSET_QR_SCANNED',
+                    payload: decodedText,
+                    nonce: nonce
+                  },
+                  returnOrigin
+                );
+
+                setStatus(
+                  'ส่งรหัสกลับแล้ว กำลังเปิดรายการครุภัณฑ์...'
+                );
+
+                // ปิดหน้าต่าง Scanner
+                setTimeout(function () {
+                  window.close();
+                }, 500);
+
+                return;
+              }
+
+              // กรณีไม่สามารถส่งข้อมูลกลับได้
+              setStatus(
+                'ไม่สามารถส่งข้อมูลกลับหน้าระบบได้ กรุณาปิด Scanner แล้วเปิดสแกนใหม่จากหน้าระบบครุภัณฑ์'
+              );
+
+              hasScanned = false;
+              restartButton.disabled = false;
+            },
+
+            // ทำงานระหว่างที่ยังไม่พบ QR
+            function (errorMessage) {
+              // ไม่พบ QR ในเฟรมนี้ ให้กล้องทำงานต่อ
+            }
+
+          );
+
+          isScanning = true;
+
+          setStatus(
+            'กำลังสแกนสด — วาง QR Code ให้อยู่ในกรอบกล้อง'
+          );
+
+        } catch (error) {
+
+          const name = error && error.name
+            ? error.name
+            : '';
+
+          let message = error && error.message
+            ? error.message
+            : String(error);
+
+          if (
+            name === 'NotAllowedError' ||
+            name === 'PermissionDeniedError'
+          ) {
+            message =
+              'ไม่ได้รับอนุญาตให้ใช้กล้อง กรุณาอนุญาต Camera ในการตั้งค่าเว็บไซต์';
+
+          } else if (
+            name === 'NotFoundError' ||
+            name === 'DevicesNotFoundError'
+          ) {
+            message = 'ไม่พบกล้องในอุปกรณ์นี้';
+
+          } else if (
+            name === 'NotReadableError' ||
+            name === 'TrackStartError'
+          ) {
+            message =
+              'กล้องกำลังถูกใช้งานโดยแอปอื่น กรุณาปิดแอปที่ใช้กล้องแล้วลองใหม่';
+          }
+
+          setStatus('เปิดกล้องไม่สำเร็จ: ' + message);
+
+        } finally {
+
+          isStarting = false;
+          restartButton.disabled = false;
+
+        }
       }
 
-      isStarting = true;
-      restartButton.disabled = true;
-      setStatus('กำลังขออนุญาตและเปิดกล้อง...');
+      // ปุ่มเปิดกล้องอีกครั้ง
+      restartButton.addEventListener('click', async function () {
 
-      try {
-        if (!scanner) {
-          scanner = new Html5Qrcode('reader', {
-            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-            verbose: false
-          });
+        if (isStarting) {
+          return;
         }
 
-        const config = {
-          fps: 12,
-          qrbox: function (viewfinderWidth, viewfinderHeight) {
-            const edge = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.72);
-            return { width: Math.min(edge, 300), height: Math.min(edge, 300) };
-          },
-          aspectRatio: 1.0,
-          disableFlip: false
-        };
+        hasScanned = false;
 
-        await scanner.start(
-          { facingMode: 'environment' },
-          config,
-          async function (decodedText) {
-            if (hasScanned) return;
-            hasScanned = true;
-            setStatus('อ่าน QR สำเร็จ กำลังส่งรหัสกลับไปยังระบบ...');
-            await stopCamera();
+        await stopCamera();
+        await startCamera();
 
-            if (window.opener && !window.opener.closed) {
-  window.opener.postMessage({
-    type: 'ASSET_QR_SCANNED',
-    payload: decodedText,
-    nonce: nonce
-  }, returnOrigin);
+      });
 
-  setStatus('ส่งรหัสกลับแล้ว กำลังเปิดรายการครุภัณฑ์...');
-  setTimeout(function () {
-    window.close();
-  }, 500);
+      // ปุ่มปิด Scanner
+      closeButton.addEventListener('click', async function () {
 
-  return;
-}
+        await stopCamera();
+        window.close();
 
-// ห้ามเปลี่ยนหน้าไปยัง Web App เพราะจะทำให้ระบบเริ่มต้นใหม่
-setStatus(
-  'ไม่สามารถส่งข้อมูลกลับหน้าระบบได้ กรุณาปิด Scanner แล้วเปิดสแกนใหม่จากหน้าระบบครุภัณฑ์'
-);
-hasScanned = false;
-restartButton.disabled = false;
-          function () { /* ไม่พบ QR ในเฟรมนี้ ให้กล้องทำงานต่อ */ }
-        );
+      });
 
-        isScanning = true;
-        setStatus('กำลังสแกนสด — วาง QR Code ให้อยู่ในกรอบกล้อง');
-      } catch (error) {
-        const name = error && error.name ? error.name : '';
-        let message = error && error.message ? error.message : String(error);
-        if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-          message = 'ไม่ได้รับอนุญาตให้ใช้กล้อง กรุณาอนุญาต Camera ในการตั้งค่าเว็บไซต์';
-        } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
-          message = 'ไม่พบกล้องในอุปกรณ์นี้';
-        } else if (name === 'NotReadableError' || name === 'TrackStartError') {
-          message = 'กล้องกำลังถูกใช้งานโดยแอปอื่น กรุณาปิดแอปที่ใช้กล้องแล้วลองใหม่';
+      // หยุดกล้องเมื่อออกจากหน้า
+      window.addEventListener('pagehide', function () {
+
+        if (scanner && isScanning) {
+          scanner.stop().catch(function () {});
         }
-        setStatus('เปิดกล้องไม่สำเร็จ: ' + message);
-      } finally {
-        isStarting = false;
-        restartButton.disabled = false;
-      }
-    }
 
-    restartButton.addEventListener('click', async function () {
-      if (isStarting) return;
-      hasScanned = false;
-      await stopCamera();
-      await startCamera();
-    });
+      });
 
-    closeButton.addEventListener('click', async function () {
-      await stopCamera();
-      window.close();
-    });
+      // เปิดกล้องทันทีเมื่อหน้าโหลด
+      startCamera();
 
-    window.addEventListener('pagehide', function () {
-      if (scanner && isScanning) scanner.stop().catch(function () {});
-    });
-
-    // เปิดกล้องทันทีเมื่อหน้าแยกโหลด ไม่ต้องกดปุ่มถ่ายภาพ
-    startCamera();
-  })();
+    })();
   </script>
+
 </body>
 </html>

@@ -232,6 +232,39 @@
         }
       }
 
+      // มือถือบางเบราว์เซอร์เปิดหน้าสแกนแยกแท็บโดยไม่มี window.opener
+      // ใช้ลิงก์ Web App ?qr=AssetID เป็นเส้นทางสำรอง โดยไม่ส่งไปยังเว็บไซต์อื่น
+      function extractAssetIdFromQr(decodedText) {
+        const raw = String(decodedText == null ? '' : decodedText).trim();
+        if (!raw) return '';
+        let value = raw;
+        if (/^https?:\/\//i.test(raw)) {
+          try {
+            value = new URL(raw).searchParams.get('qr') || '';
+          } catch (error) { return ''; }
+        } else if (/^[a-z][a-z0-9+.-]*:/i.test(raw) && !/^ASSET:/i.test(raw)) {
+          return '';
+        }
+        value = String(value).trim();
+        if (/^ASSET:/i.test(value)) value = value.slice(6).trim();
+        return value && value.length <= 256 ? value : '';
+      }
+
+      function returnToWebApp(decodedText) {
+        const assetId = extractAssetIdFromQr(decodedText);
+        if (!assetId || !isAllowedReturnUrl(returnUrl)) {
+          hasScanned = false;
+          restartButton.disabled = false;
+          setStatus('QR Code ไม่มี AssetID ที่รองรับ กรุณาลองสแกนใหม่');
+          return;
+        }
+        const targetUrl = new URL(returnUrl);
+        targetUrl.searchParams.set('qr', assetId);
+        setStatus('กำลังกลับสู่ระบบเพื่อเปิดฟอร์มแก้ไขครุภัณฑ์...');
+        // ใช้ replace ในแท็บ Scanner จึงทำงานได้แม้ window.opener เป็น null
+        window.location.replace(targetUrl.toString());
+      }
+
       // รอการยืนยันจากหน้าระบบหลักก่อนปิด Scanner
       window.addEventListener('message', function (event) {
         // รับ ACK/REJECTED จากหน้าระบบหลักที่เปิด Scanner เท่านั้น
@@ -385,27 +418,20 @@
                   // ไม่ปิด Scanner ทันที: มือถือบางรุ่นสลับแท็บ/คืนโฟกัสช้ากว่าคอมพิวเตอร์
                   acknowledgementTimer = setTimeout(function () {
                     acknowledgementTimer = null;
-                    hasScanned = false;
-                    restartButton.disabled = false;
-                    setStatus('ยังไม่ได้รับการยืนยันจากหน้าระบบ กรุณากลับไปตรวจหน้าระบบ หากไม่มีรายการเปิดขึ้นให้กดเปิดกล้องอีกครั้ง');
+                    // ถ้าหน้าหลักไม่ตอบ ACK (เช่น มือถือแยกแท็บ) เปิดผ่าน URL แทน
+                    returnToWebApp(decodedText);
                   }, 5000);
 
                   return;
                 } catch (postMessageError) {
-                  setStatus('ส่งข้อมูลกลับไม่สำเร็จ: ' + (postMessageError.message || postMessageError));
-                  hasScanned = false;
-                  restartButton.disabled = false;
+                  console.warn('ส่ง postMessage ไม่สำเร็จ จึงใช้ Web App URL:', postMessageError);
+                  returnToWebApp(decodedText);
                   return;
                 }
               }
 
-              // กรณีไม่สามารถส่งข้อมูลกลับได้
-              setStatus(
-                'ไม่สามารถส่งข้อมูลกลับหน้าระบบได้ กรุณาปิด Scanner แล้วเปิดสแกนใหม่จากหน้าระบบครุภัณฑ์'
-              );
-
-              hasScanned = false;
-              restartButton.disabled = false;
+              // ไม่มี opener: พบได้บน Chrome / Safari มือถือหรือหน้าต่างแบบแยกแท็บ
+              returnToWebApp(decodedText);
             },
 
             // ทำงานระหว่างที่ยังไม่พบ QR

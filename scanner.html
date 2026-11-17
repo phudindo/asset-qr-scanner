@@ -194,6 +194,7 @@
       let isStarting = false;
       let isScanning = false;
       let hasScanned = false;
+      let acknowledgementTimer = null;
 
       function setStatus(message) {
         statusNode.textContent = message;
@@ -230,6 +231,33 @@
           return false;
         }
       }
+
+      // รอการยืนยันจากหน้าระบบหลักก่อนปิด Scanner
+      window.addEventListener('message', function (event) {
+        // บนมือถือ WindowProxy อาจไม่เท่ากันระหว่างแท็บ แม้เป็น opener เดิม
+        // ตรวจ origin และ nonce ซึ่งผูกกับการเปิด Scanner รอบนี้แทน
+        if (event.origin !== returnOrigin) return;
+
+        const data = event.data || {};
+        if (data.nonce !== nonce) return;
+
+        if (data.type === 'ASSET_QR_ACK') {
+          if (acknowledgementTimer) {
+            clearTimeout(acknowledgementTimer);
+            acknowledgementTimer = null;
+          }
+          setStatus('หน้าระบบได้รับรหัสแล้ว กำลังเปิดรายการครุภัณฑ์...');
+          setTimeout(function () { window.close(); }, 250);
+        } else if (data.type === 'ASSET_QR_REJECTED') {
+          if (acknowledgementTimer) {
+            clearTimeout(acknowledgementTimer);
+            acknowledgementTimer = null;
+          }
+          hasScanned = false;
+          restartButton.disabled = false;
+          setStatus('หน้าระบบไม่ยอมรับข้อมูล QR กรุณาลองสแกนอีกครั้ง');
+        }
+      });
 
       // หยุดกล้อง
       async function stopCamera() {
@@ -331,26 +359,33 @@
 
               // ส่งข้อมูลกลับไปยังหน้าหลัก
               if (window.opener && !window.opener.closed) {
+                try {
+                  window.opener.postMessage(
+                    {
+                      type: 'ASSET_QR_SCANNED',
+                      payload: decodedText,
+                      nonce: nonce
+                    },
+                    returnOrigin
+                  );
 
-                window.opener.postMessage(
-                  {
-                    type: 'ASSET_QR_SCANNED',
-                    payload: decodedText,
-                    nonce: nonce
-                  },
-                  returnOrigin
-                );
+                  setStatus('ส่งข้อมูลแล้ว กำลังรอหน้าระบบยืนยัน...');
 
-                setStatus(
-                  'ส่งรหัสกลับแล้ว กำลังเปิดรายการครุภัณฑ์...'
-                );
+                  // ไม่ปิด Scanner ทันที: มือถือบางรุ่นสลับแท็บ/คืนโฟกัสช้ากว่าคอมพิวเตอร์
+                  acknowledgementTimer = setTimeout(function () {
+                    acknowledgementTimer = null;
+                    hasScanned = false;
+                    restartButton.disabled = false;
+                    setStatus('ยังไม่ได้รับการยืนยันจากหน้าระบบ กรุณากลับไปตรวจหน้าระบบ หากไม่มีรายการเปิดขึ้นให้กดเปิดกล้องอีกครั้ง');
+                  }, 5000);
 
-                // ปิดหน้าต่าง Scanner
-                setTimeout(function () {
-                  window.close();
-                }, 500);
-
-                return;
+                  return;
+                } catch (postMessageError) {
+                  setStatus('ส่งข้อมูลกลับไม่สำเร็จ: ' + (postMessageError.message || postMessageError));
+                  hasScanned = false;
+                  restartButton.disabled = false;
+                  return;
+                }
               }
 
               // กรณีไม่สามารถส่งข้อมูลกลับได้
@@ -440,6 +475,10 @@
 
       // หยุดกล้องเมื่อออกจากหน้า
       window.addEventListener('pagehide', function () {
+        if (acknowledgementTimer) {
+          clearTimeout(acknowledgementTimer);
+          acknowledgementTimer = null;
+        }
 
         if (scanner && isScanning) {
           scanner.stop().catch(function () {});

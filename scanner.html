@@ -234,8 +234,8 @@
 
       // รอการยืนยันจากหน้าระบบหลักก่อนปิด Scanner
       window.addEventListener('message', function (event) {
-        // บนมือถือ WindowProxy อาจไม่เท่ากันระหว่างแท็บ แม้เป็น opener เดิม
-        // ตรวจ origin และ nonce ซึ่งผูกกับการเปิด Scanner รอบนี้แทน
+        // รับ ACK/REJECTED จากหน้าระบบหลักที่เปิด Scanner เท่านั้น
+        if (!window.opener || event.source !== window.opener) return;
         if (event.origin !== returnOrigin) return;
 
         const data = event.data || {};
@@ -355,6 +355,17 @@
                 'อ่าน QR สำเร็จ กำลังส่งรหัสกลับไปยังระบบ...'
               );
 
+              // Callback อาจทำงานก่อน Promise ของ start() เสร็จ
+              // จึงรอให้เริ่มกล้องเสร็จก่อนหยุดอย่างปลอดภัย
+              if (isStarting) {
+                await new Promise(function (resolve) {
+                  const wait = function () {
+                    if (!isStarting) return resolve();
+                    setTimeout(wait, 30);
+                  };
+                  wait();
+                });
+              }
               await stopCamera();
 
               // ส่งข้อมูลกลับไปยังหน้าหลัก
@@ -406,7 +417,7 @@
 
           isScanning = true;
 
-          setStatus(
+          if (!hasScanned) setStatus(
             'กำลังสแกนสด — วาง QR Code ให้อยู่ในกรอบกล้อง'
           );
 
